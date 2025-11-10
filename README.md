@@ -1,36 +1,60 @@
-# Stopwatch EN
+# Cronómetro / Cuenta atrás (Web)
 
-Use what you’ve learned about prompt engineering to create a stopwatch and countdown.
+Aplicación web ligera de cronómetro y cuenta atrás, con laps, atajos de teclado, persistencia y i18n básica.
 
-Reference: https://www.online-stopwatch.com/ (see res/stopwatch.png for design reference)
+## Demo local
 
-Do it using the seed index.html + script.js
+Solo abre `index.html` en tu navegador.
 
-Use a chatbot, like ChatGPT or Gemini, not a code assistant in an IDE like Copilot.
+## Características
+- **Modos**: Cronómetro y Cuenta atrás (configurable hh:mm:ss.ms).
+- **Controles**: Start / Pause / Resume / Reset / Lap.
+- **Atajos**: `Espacio` (Start/Pause/Resume), `R` (Reset), `L` (Lap).
+- **Formato**: `mm:ss.mmm` y añade horas (`hh:mm:ss.mmm`) si procede. Zero‑padding robusto.
+- **Laps**: listado con marca absoluta y delta desde el anterior; se pueden borrar individualmente o limpiar todos.
+- **Persistencia**: estado, tiempo y laps al recargar (LocalStorage `stopwatch:v1`). Si estaba corriendo, se ajusta el tiempo transcurrido fuera de foco.
+- **i18n**: español por defecto; añade idiomas en el objeto `i18n` de `script.js`.
+- **Accesibilidad/UX**: diseño responsive, foco visible, botones con estados, números tabulares.
+- **Arquitectura**: separación lógica (TimeEngine) vs. presentación, API pública en `window.stopwatch`.
 
-Tip: if it allows image analysis, you can upload it to easily obtain a design similar to the reference.
+## API pública
+Disponible en `window.stopwatch`:
+- `start()`
+- `pause()`
+- `resume()`
+- `reset()`
+- `lap()`
+- `getState()`
 
-To submit the exercise, make a pull request that includes not only the generated code but also, crucially, the prompt used in the file prompts.md. Also, add the prompt in the comment.
+## Persistencia (LocalStorage)
+Clave: `stopwatch:v1`. Estructura guardada:
+```json
+{
+  "mode": "stopwatch|countdown",
+  "running": true,
+  "t0": 1712345678910,
+  "accumulated": 1234,
+  "targetMs": 600000,
+  "laps": [
+    { "index": 1, "absoluteMs": 1234, "deltaMs": 1234, "timestampISO": "2025-01-01T12:00:00.000Z" }
+  ],
+  "lastPersistedAt": 1712345678920
+}
+```
+> Al cargar, si `running` era `true`, se recalcula `accumulated` para reflejar el tiempo pasado.
 
-To submit, make a pull request that includes a folder copied from the template, with the name stopwatch-initials (e.g., stopwatch-ARM). It should include not only the generated code but also, crucially, the prompt used and the chatbot used in prompts.md. If you’ve used more than one prompt until reaching a suitable solution, add them all in order. Also, include the final prompt in the pull request comment.
+## Suposiciones
+- En cuenta atrás, al llegar a 0 el reloj se pausa automáticamente.
+- El botón **Lap** queda deshabilitado a 0 en cuenta atrás.
+- El render se hace en `requestAnimationFrame` pero solo actualiza el DOM si la cadena visible cambia.
 
-Good luck!
+## Estructura
+```
+.
+├─ index.html
+├─ styles.css
+└─ script.js
+```
 
-# Stopwatch ES
-
-Utiliza lo aprendido sobre prompt engineering para crear un **cronómetro y cuenta atrás**. 
-
-Referencia: [https://www.online-stopwatch.com/](https://www.online-stopwatch.com/) (ver res/stopwatch.png, referencia de diseño)
-
-Hazlo apoyado en el seed `index.html` + `script.js`
-
-Utiliza un chatbot, como ChatGPT o Gemini, no un asistente de código en IDE como Copilot.
-
-Tip: si permite el análisis de imágenes, puedes subirla para obtener fácilmente un diseño similar al de referencia.
-
-Para entregar el ejercicio, haz un pull request que incluya no solo el código generado, sino también, fundamental, el prompt utilizado en el fichero prompts.md. Añade además el prompt en el comentario.
-
-
-Para entregar, haz una pull request que incluya una carpeta copiada de template, con el nombre `stopwatch-iniciales` (ejemplo `stopwatch-ARM`). Debe incluir no solo el código generado, sino también, fundamental, **el prompt utilizado y el chatbot utilizado** en `prompts.md`. Si has usado más de un prompt hasta llegar a una solución adecuada, añade todos en orden. Añade además el prompt final en el comentario del pull request.
-
-¡Éxitos!
+## Licencia
+MIT
